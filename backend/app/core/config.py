@@ -23,6 +23,10 @@ class Settings(BaseSettings):
         default="postgresql+psycopg://portfolio_app:portfolio_dev_secret@localhost:5432/portfolio_db"
     )
 
+    # API configuration
+    API_V1_STR: str = Field(default="/api/v1")
+    RUN_ID_PREFIX: str = Field(default="RUN")
+
     # In-memory / Test SQLite fallback URL for fast local test execution
     TEST_DATABASE_URL: str = Field(default="sqlite:///:memory:")
 
