@@ -3,8 +3,9 @@
 Compatible with both unittest (standard library) and pytest (CI/CD).
 Verifies decimal precision requirements and basic test harness.
 """
+
 import unittest
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 
 
 class TestFoundations(unittest.TestCase):
@@ -14,7 +15,7 @@ class TestFoundations(unittest.TestCase):
 
     def test_financial_decimal_precision_invariants(self) -> None:
         """Verify that financial precision invariants follow Decimal rules rather than float.
-        
+
         IEEE 754 floats have representation drift (0.1 + 0.2 != 0.3).
         Financial decimals must maintain exact base-10 representation.
         """
