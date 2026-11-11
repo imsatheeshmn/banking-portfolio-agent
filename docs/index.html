@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investment Data Engineering & Portfolio Intelligence Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #111827;
+      --bg-card: #162032;
+      --bg-card-hover: #1c2940;
+      --border-color: #24344d;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-purple: #8b5cf6;
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(180deg, #131d2e 0%, #0d1422 100%);
+      border-bottom: 1px solid var(--border-color);
+      padding: 2.5rem 2rem 1.5rem;
+    }
+
+    .header-container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 900px;
+      margin-bottom: 1.5rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1rem 1.25rem;
+    }
+
+    .stat-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.25rem;
+    }
+
+    nav.tab-nav {
+      background: #0d1422;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .nav-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      overflow-x: auto;
+      padding: 0 1rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: #ffffff;
+    }
+
+    .tab-btn.active {
+      color: var(--accent-cyan);
+      border-bottom-color: var(--accent-cyan);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .architecture-diagram {
+      background: #080c14;
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      line-height: 1.4;
+      margin: 1.5rem 0;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    table.data-table th {
+      background: #0d1422;
+      color: var(--text-muted);
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    table.data-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(36, 52, 77, 0.5);
+      color: var(--text-main);
+    }
+
+    table.data-table tr:hover {
+      background: rgba(22, 32, 50, 0.6);
+    }
+
+    .code-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      background: rgba(14, 165, 233, 0.1);
+      color: #38bdf8;
+      padding: 0.15rem 0.4rem;
+      border-radius: 0.25rem;
+      border: 1px solid rgba(14, 165, 233, 0.25);
+    }
+
+    .oracle-box {
+      background: rgba(245, 158, 11, 0.08);
+      border-left: 4px solid var(--accent-amber);
+      padding: 1rem 1.25rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    .oracle-box-title {
+      font-weight: 700;
+      color: #fbbf24;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .roadmap-list {
+      list-style: none;
+    }
+
+    .roadmap-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .status-icon {
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    footer {
+      background: #070a10;
+      border-top: 1px solid var(--border-color);
+      padding: 2rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      margin-top: auto;
+    }
+
+    footer a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <div class="badge-bar">
+        <span class="badge badge-green">● M1a Complete</span>
+        <span class="badge badge-blue">PostgreSQL 16 Multi-Schema</span>
+        <span class="badge badge-purple">Bitemporal Ledger</span>
+        <span class="badge badge-amber">BCBS 239 Aligned</span>
+      </div>
+      <h1>Investment Data Engineering & Portfolio Intelligence Platform</h1>
+      <p class="subtitle">An enterprise-grade, bitemporal data platform designed to process, reconcile, and value multi-currency equity and cash portfolios using modern data engineering patterns.</p>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val">7 Schemas</div>
+          <div class="stat-label">Data Layering Pipeline</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">7 ADRs</div>
+          <div class="stat-label">Formal Decision Records</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">NUMERIC(24,8)</div>
+          <div class="stat-label">Zero Floating-Point Drift</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">$1,000,000</div>
+          <div class="stat-label">Seeded Master Portfolio</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tab-nav">
+    <div class="nav-container">
+      <button class="tab-btn active" onclick="showTab('architecture')">Architecture & Schemas</button>
+      <button class="tab-btn" onclick="showTab('adrs')">Architecture Decision Records</button>
+      <button class="tab-btn" onclick="showTab('datamodel')">Data Model & Entities</button>
+      <button class="tab-btn" onclick="showTab('domain')">Investment Domain Rules</button>
+      <button class="tab-btn" onclick="showTab('roadmap')">Milestone Roadmap</button>
+      <button class="tab-btn" onclick="showTab('localrun')">Local Execution</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- TAB 1: ARCHITECTURE -->
+    <div id="tab-architecture" class="tab-pane active">
+      <div class="card">
+        <div class="card-title">7-Schema Layered Lakehouse & Relational Pipeline</div>
+        <p style="color: var(--text-muted);">The platform establishes strict relational boundaries with dedicated PostgreSQL schemas, preventing cross-schema pollution and enforcing BCBS 239 auditability from ingestion to reporting.</p>
+        
+        <div class="architecture-diagram">
+[ External Broker & Custodian Feeds ] (CSVs, JSON payloads, FIX drops)
+                  │
+                  ▼
+         ┌───────────────────┐
+         │     raw schema    │ ── Manifests, SHA-256 payload hashes, immutable ingestion log
+         └───────────────────┘
+                  │
+                  ▼
+         ┌───────────────────┐
+         │   staging schema  │ ── Typed, cleaned, in-flight transaction rows
+         └───────────────────┘
+            │             │
+  (Valid)   ▼             ▼ (Invalid)
+┌─────────────────┐  ┌───────────────────┐
+│ curated schema  │  │ quarantine schema │ ── Rejected records with reason codes
+└─────────────────┘  └───────────────────┘
+        │
+        ▼
+┌───────────────────────────────────────────────┐
+│                  oltp schema                  │
+│  - customers, portfolios, cash_accounts       │
+│  - securities, security_identifiers (ISIN)    │
+│  - transaction_ledger (Append-only bitemporal)│
+└───────────────────────────────────────────────┘
+        │
+        ▼
+┌───────────────────────────────────────────────┐
+│                   dw schema                   │
+│  - Dimensional Star Schema (SCD Type 2)       │
+│  - Daily Fact Snapshots, NAV, P&L, TWR        │
+└───────────────────────────────────────────────┘
+        │
+        ▼
+[ FastAPI Operational Services & Analytics Dashboard ]
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Schema</th>
+              <th>Classification</th>
+              <th>Purpose & Responsibilities</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="code-tag">oltp</span></td>
+              <td>Master & Ledger</td>
+              <td>Operational accounts, security cross-reference (ISIN/CUSIP), and the immutable bitemporal transaction ledger.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">raw</span></td>
+              <td>Ingestion</td>
+              <td>Source payloads stored as received with SHA-256 checksums and ingestion manifests.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">staging</span></td>
+              <td>Transient</td>
+              <td>Typed, cleaned in-flight records prior to domain validation.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">quarantine</span></td>
+              <td>Exception</td>
+              <td>Rejected rows trapped with error codes (<span class="code-tag">ERR_INSUFFICIENT_HOLDINGS</span>, malformed currency, etc.).</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">curated</span></td>
+              <td>Conformed</td>
+              <td>Validated, conformed financial data ready for downstream consumption.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">dw</span></td>
+              <td>Warehouse</td>
+              <td>Dimensional star schema: fact tables, daily position snapshots, and SCD Type 2 dimension attributes.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">audit</span></td>
+              <td>Governance</td>
+              <td>Append-only audit log, user actions, pipeline execution runs (<span class="code-tag">run_id</span>), and reconciliation breaks.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 2: ADRS -->
+    <div id="tab-adrs" class="tab-pane">
+      <div class="card">
+        <div class="card-title">Accepted Architecture Decision Records</div>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">All technical and domain decisions are recorded via formal ADRs following the MADR structure, complete with enterprise Oracle bridge notes.</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ADR ID</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Key Decision</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="code-tag">ADR-001</span></td>
+              <td><strong>Numeric Precision & Rounding</strong></td>
+              <td><span class="badge badge-green">Accepted</span></td>
+              <td>Quantity <span class="code-tag">NUMERIC(24,8)</span>, Price/FX <span class="code-tag">NUMERIC(20,10)</span>, Amounts <span class="code-tag">NUMERIC(20,4)</span>, <span class="code-tag">ROUND_HALF_UP</span>. Python float banned.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">ADR-002</span></td>
+              <td><strong>Weighted Average Cost Basis</strong></td>
+              <td><span class="badge badge-green">Accepted</span></td>
+              <td>WAC for Phase A positions; realized P&L recognized at sell execution; FIFO tax lots recorded as extension.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">ADR-003</span></td>
+              <td><strong>Long-Only Position Policy</strong></td>
+              <td><span class="badge badge-green">Accepted</span></td>
+              <td>Portfolios are strictly long-only. Sells exceeding held inventory trigger validation rejection and quarantine routing.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">ADR-004</span></td>
+              <td><strong>Multi-Currency & FX Conventions</strong></td>
+              <td><span class="badge badge-green">Accepted</span></td>
+              <td>Mandatory storage of local amount, spot FX rate, rate date, and base currency amount on every transaction ledger row.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">ADR-005</span></td>
+              <td><strong>Trade Date vs. Settlement Date</strong></td>
+              <td><span class="badge badge-green">Accepted</span></td>
+              <td>Trade Date (T) drives IBOR positions; Settlement Date (T+1) drives cash balances and ABOR reconciliation.</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">ADR-006</span></td>
+              <td><strong>Append-Only Bitemporal Ledger</strong></td>
+              <td><span class="badge badge-green">Accepted</span></td>
+              <td>Zero in-place updates. Reversals and replacements generate linked reversal rows (<span class="code-tag">CANCEL</span>/<span class="code-tag">REPLACEMENT</span>).</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">ADR-007</span></td>
+              <td><strong>Two-Tier Data Quality Framework</strong></td>
+              <td><span class="badge badge-green">Accepted</span></td>
+              <td>In-flight Python/Polars gatekeeper routing to quarantine + dbt generic and singular SQL tests in the warehouse mart.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="oracle-box">
+          <div class="oracle-box-title">💡 Oracle / PL/SQL Enterprise Bridge</div>
+          Unlike Oracle where DDL commits autonomously, PostgreSQL DDL is fully transactional. Every migration runs inside <span class="code-tag">BEGIN ... COMMIT</span> and rolls back completely on any constraint failure. Furthermore, position tables are derived projections computed deterministically from the immutable bitemporal ledger, rather than mutable cache columns maintained by package triggers.
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: DATA MODEL -->
+    <div id="tab-datamodel" class="tab-pane">
+      <div class="card">
+        <div class="card-title">Core Entities & Relational Schema (<span class="code-tag">oltp</span>)</div>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">The operational domain schema models the investment book of record with foreign key relationships, audit mixins, and explicit length/check constraints.</p>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Table Name</th>
+              <th>Primary Key</th>
+              <th>Key Attributes & Constraints</th>
+              <th>Foreign Keys</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="code-tag">oltp.customers</span></td>
+              <td><span class="code-tag">customer_id</span> (Identity)</td>
+              <td><span class="code-tag">legal_name</span>, <span class="code-tag">country_code</span> (ISO 3166-1 alpha-2, CHECK len=2, uppercase), <span class="code-tag">status</span></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">oltp.portfolios</span></td>
+              <td><span class="code-tag">portfolio_id</span> (Identity)</td>
+              <td><span class="code-tag">portfolio_code</span> (UNIQUE), <span class="code-tag">base_currency</span> (ISO 4217, CHECK len=3, uppercase), <span class="code-tag">inception_date</span></td>
+              <td><span class="code-tag">customer_id</span> &rarr; customers</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">oltp.cash_accounts</span></td>
+              <td><span class="code-tag">cash_account_id</span> (Identity)</td>
+              <td><span class="code-tag">currency</span> (CHECK len=3, uppercase), <span class="code-tag">account_type</span> (SETTLEMENT/INCOME/EXPENSE), <span class="code-tag">iban</span></td>
+              <td><span class="code-tag">portfolio_id</span> &rarr; portfolios</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">oltp.securities</span></td>
+              <td><span class="code-tag">security_id</span> (Identity)</td>
+              <td><span class="code-tag">ticker</span>, <span class="code-tag">security_name</span>, <span class="code-tag">instrument_type</span>, <span class="code-tag">primary_exchange</span> (MIC code), <span class="code-tag">currency</span></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">oltp.security_identifiers</span></td>
+              <td><span class="code-tag">identifier_id</span> (Identity)</td>
+              <td><span class="code-tag">identifier_type</span> (ISIN/CUSIP/SEDOL/FIGI), <span class="code-tag">identifier_value</span> (UNIQUE pair, uppercase)</td>
+              <td><span class="code-tag">security_id</span> &rarr; securities</td>
+            </tr>
+            <tr>
+              <td><span class="code-tag">oltp.transaction_ledger</span></td>
+              <td><span class="code-tag">transaction_id</span> (UUIDv4)</td>
+              <td>Bitemporal axes (<span class="code-tag">trade_date</span> vs <span class="code-tag">settlement_date</span> vs <span class="code-tag">recorded_at_utc</span>), <span class="code-tag">quantity</span> (24,8), <span class="code-tag">unit_price</span> (20,10), <span class="code-tag">fx_rate</span> (20,10), amounts (20,4), maker-checker approval columns</td>
+              <td><span class="code-tag">portfolio_id</span>, <span class="code-tag">security_id</span>, <span class="code-tag">cash_account_id</span>, self-referential <span class="code-tag">original_transaction_id</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB 4: DOMAIN RULES -->
+    <div id="tab-domain" class="tab-pane">
+      <div class="card">
+        <div class="card-title">Investment Domain Invariants & Calculation Rules</div>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <h3 style="color: #60a5fa; margin-bottom: 0.5rem;">1. Transaction State Machine</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">
+            Transactions advance through strict states: <span class="code-tag">NEW</span> &rarr; <span class="code-tag">VALIDATED</span> &rarr; <span class="code-tag">CONFIRMED</span> &rarr; <span class="code-tag">SETTLED</span>. Reversals enter <span class="code-tag">CANCELLED</span>, while failed records are marked <span class="code-tag">REJECTED</span> and routed to quarantine.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h3 style="color: #34d399; margin-bottom: 0.5rem;">2. Net Asset Value (NAV) Formula</h3>
+          <div class="architecture-diagram" style="color: #34d399;">
+NAV = &Sigma; (Quantity_i &times; Market_Price_i &times; FX_Rate_i) + Cash_Balance + Accruals - Liabilities
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Missing prices produce high-severity valuation exceptions; they are never defaulted silently to $0.00.</p>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h3 style="color: #fbbf24; margin-bottom: 0.5rem;">3. Reconciliation & Break Management</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">
+            Reconciliation checks daily positions against simulated custodian extracts and cash against bank statement extracts. Mismatches exceeding tolerances generate breaks tracked through: <span class="code-tag">OPEN</span> &rarr; <span class="code-tag">INVESTIGATING</span> &rarr; <span class="code-tag">RESOLVED</span> (or <span class="code-tag">WRITTEN_OFF</span>).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: ROADMAP -->
+    <div id="tab-roadmap" class="tab-pane">
+      <div class="card">
+        <div class="card-title">Milestone Roadmap & Delivery Progress</div>
+        <ul class="roadmap-list">
+          <li class="roadmap-item">
+            <span class="status-icon">✅</span>
+            <div>
+              <strong>Milestone 0: Foundations</strong>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Project structure, tooling, pre-commit, CI skeleton, Docker Compose, ADR template, domain glossary, assumptions document.</p>
+            </div>
+          </li>
+          <li class="roadmap-item">
+            <span class="status-icon">✅</span>
+            <div>
+              <strong>Milestone 1a: Database Architecture & Core Domain Schemas</strong>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">7 application schemas, SQLAlchemy 2.0 master/ledger models, Alembic migrations 0001 & 0002, deterministic seed data, ADRs 001-007.</p>
+            </div>
+          </li>
+          <li class="roadmap-item">
+            <span class="status-icon">🔄</span>
+            <div>
+              <strong>Milestone 1b: Domain Logic & Position Engine</strong>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Transaction validation service, lifecycle state machine, position-from-ledger calculation (WAC & realized P&L), golden datasets & property-based tests (Hypothesis).</p>
+            </div>
+          </li>
+          <li class="roadmap-item">
+            <span class="status-icon">⏳</span>
+            <div>
+              <strong>Milestone 1c: FastAPI Operational Services</strong>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Endpoints for portfolio, security, and transaction booking, centralized error handling contracts, and integration test suite.</p>
+            </div>
+          </li>
+          <li class="roadmap-item">
+            <span class="status-icon">⏳</span>
+            <div>
+              <strong>Milestone 1d: Operations UI & Packaging</strong>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Next.js operational screens for operations desks, one-command startup, end-to-end flow.</p>
+            </div>
+          </li>
+          <li class="roadmap-item">
+            <span class="status-icon">⏳</span>
+            <div>
+              <strong>Milestone 2: Ingestion & Quarantine Framework</strong>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">CSV/JSON raw storage with manifests and checksums, duplicate detection, quarantine routing, and restartability.</p>
+            </div>
+          </li>
+          <li class="roadmap-item">
+            <span class="status-icon">⏳</span>
+            <div>
+              <strong>Milestone 3: Portfolio Processing & Multi-Currency NAV</strong>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Market price & FX ingestion, holdings valuation, cash accruals, stale-price handling, multi-currency NAV.</p>
+            </div>
+          </li>
+          <li class="roadmap-item">
+            <span class="status-icon">⏳</span>
+            <div>
+              <strong>Milestone 4: Custodian Reconciliation & Data Quality</strong>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">Position and cash recon with break workflow and four-eyes maker-checker sign-off.</p>
+            </div>
+          </li>
+          <li class="roadmap-item">
+            <span class="status-icon">⏳</span>
+            <div>
+              <strong>Milestone 5: Dimensional Data Warehouse (dbt)</strong>
+              <p style="color: var(--text-muted); font-size: 0.85rem;">SCD Type 2 dimensions, daily position snapshot facts, performance returns (TWR, Modified Dietz).</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- TAB 6: LOCAL EXECUTION -->
+    <div id="tab-localrun" class="tab-pane">
+      <div class="card">
+        <div class="card-title">How to Run Locally</div>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">The platform provides a one-command verification runner and local HTTP documentation server.</p>
+
+        <h4 style="color: #60a5fa; margin-bottom: 0.5rem;">PowerShell Execution (Windows)</h4>
+        <div class="architecture-diagram" style="color: #38bdf8;">
+# Run integrity checks, migrations, seed verification, and unit tests
+.\run_local.ps1
+
+# Run checks and launch the local interactive documentation server
+.\run_local.ps1 -Serve -Port 8000
+        </div>
+
+        <h4 style="color: #34d399; margin: 1.5rem 0 0.5rem;">Python CLI Execution</h4>
+        <div class="architecture-diagram" style="color: #34d399;">
+cd backend
+.\.venv\Scripts\python.exe ..\scripts\run_local.py --serve
+        </div>
+
+        <h4 style="color: #fbbf24; margin: 1.5rem 0 0.5rem;">Run Unit Tests Directly</h4>
+        <div class="architecture-diagram" style="color: #fbbf24;">
+cd backend
+.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py" -v
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="header-container">
+      <p>Investment Data Engineering & Portfolio Intelligence Platform &bull; Built for educational and portfolio demonstration &bull; Synthetic data only &bull; <a href="https://github.com/imsatheeshmn/banking-portfolio-agent" target="_blank">GitHub Repository</a></p>
+    </div>
+  </footer>
+
+  <script>
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+      const selectedTab = document.getElementById('tab-' + tabName);
+      if (selectedTab) selectedTab.classList.add('active');
+
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => 
+        btn.getAttribute('onclick').includes(tabName)
+      );
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+  </script>
+</body>
+</html>
