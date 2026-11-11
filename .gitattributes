@@ -1,0 +1,18 @@
+# Set default behavior to automatically normalize line endings
+* text=auto eol=lf
+
+# Explicitly declare text files you want to always be normalized and converted to LF on checkout
+*.py text eol=lf
+*.sql text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.json text eol=lf
+
+# Denote all binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
